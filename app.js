@@ -49,6 +49,14 @@ class UI {
 		list.appendChild(row);
 	}
 
+	static deleteBook(el) {
+		//if the class is "delete"
+		if(el.classList.contains('delete')) {
+			//remove the parent of the parent, which would encompass the entire row
+			el.parentElement.parentElement.remove();
+		}
+	}
+
 	static clearFields() {
 		document.querySelector('#title').value = '';
 		document.querySelector('#author').value = '';
@@ -84,3 +92,9 @@ class UI {
  });
 
   // Event - Remove a  book
+	// Uses "event propgation" to target things clicked insdie of the book list
+	// Targeting just the delete class would only remove the first such element in the DOM rather than the one we actually clicked on.
+	document.querySelector('#book-list').addEventListener('click', (e) => {
+		//we'll pass the target on the event to a UI method
+		UI.deleteBook(e.target)
+	})
