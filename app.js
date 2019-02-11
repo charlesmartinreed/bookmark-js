@@ -14,20 +14,7 @@
 class UI {
 	//static to make these class methods, rather than instancce
 	static displayBooks() {
-		const StoredBooks = [
-			{
-				title: 'Book One',
-				author: 'John Doe',
-				isbn: '3434434'
-			},
-			{
-				title: 'Book Two',
-				author: 'Jane Doe',
-				isbn: '45545'
-			}
-		];
-
-		const books = StoredBooks;
+		const books = Store.getBooks();
 
 		// loop through books in StoredBooks, call addBooks
 		books.forEach((book) => UI.addBookToList(book));
@@ -82,6 +69,40 @@ class UI {
 }
 
  // Store Class - Handles storage, locally
+ class Store {
+	 // local storage uses key/value pairs to store strings.
+	 // Stringify to store, parse when pulling out
+	 static getBooks() {
+		 let books;
+		 if(localStorage.getItem('books') === null) {
+			 books = [];
+		 } else {
+			 books = JSON.parse(localStorage.getItem('books'));
+		 }
+
+		 return books;
+	 }
+
+	 static addBook(book) {
+		 const books = Store.getBooks();
+			books.push(book);
+			localStorage.setItem('books', JSON.stringify(books));
+	 }
+
+	 static removeBook(isbn) {
+		 const books = Store.getBooks();
+
+		 books.forEach((book, index) => {
+			 if(book.isbn === isbn) {
+				 //removing that book by splicing it out of the books array, beginning and ending at the book's index
+				 books.splice(index, 1);
+			 }
+		 });
+
+		 //reset local storage with that item removed
+		 localStorage.setItem('books', JSON.stringify(books));
+	 }
+ }
 
  // Event - Display Booklist
  // as soon as the DOM is loaded
@@ -106,8 +127,9 @@ class UI {
 			 //make a Book
 			 const book = new Book(title, author, isbn);
 
-			 //reflect new book in UI
-			 UI.addBookToList(book)
+			 //reflect new book in UI and localStorage
+			 UI.addBookToList(book);
+			 Store.addBook(book);
 
 			 UI.showAlert('Book was added to collection!', 'success');
 
@@ -123,7 +145,12 @@ class UI {
 	// Targeting just the delete class would only remove the first such element in the DOM rather than the one we actually clicked on.
 	document.querySelector('#book-list').addEventListener('click', (e) => {
 		//we'll pass the target on the event to a UI method
+		//remove from UI
 		UI.deleteBook(e.target);
+
+		//remove from localStorage
+		//traverse DOM to get to the td, then target the text within to get the isbn
+		Store.removeBook(e.target.parentElement.previousElementSibling.textContent);
 
 		UI.showAlert('Book was removed from collection!', 'danger');
 
