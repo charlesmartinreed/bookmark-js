@@ -48,6 +48,12 @@ class UI {
 		//append the row to the book-list
 		list.appendChild(row);
 	}
+
+	static clearFields() {
+		document.querySelector('#title').value = '';
+		document.querySelector('#author').value = '';
+		document.querySelector('#isbn').value = '';
+	}
 }
 
  // Store Class - Handles storage, locally
@@ -57,5 +63,24 @@ class UI {
  document.addEventListener('DOMContentLoaded', UI.displayBooks);
 
  // Event - Add a book
+ // grab the form, listen for the submit
+ document.querySelector('#book-form').addEventListener('submit', (e) => {
+	 //prevent actual submit from occurring
+	 e.preventDefault();
+
+	 // get the form values
+	 const title = document.querySelector('#title').value;
+	 const author = document.querySelector('#author').value;
+	 const isbn = document.querySelector('#isbn').value;
+
+	 //make a Book
+	 const book = new Book(title, author, isbn);
+
+	 //reflect new book in UI
+	 UI.addBookToList(book)
+
+	 //clear the submit fields
+	 UI.clearFields();
+ });
 
   // Event - Remove a  book
