@@ -47,6 +47,7 @@ class UI {
 
 		//append the row to the book-list
 		list.appendChild(row);
+
 	}
 
 	static deleteBook(el) {
@@ -55,6 +56,22 @@ class UI {
 			//remove the parent of the parent, which would encompass the entire row
 			el.parentElement.parentElement.remove();
 		}
+	}
+
+	static showAlert(message, className) {
+		const div = document.createElement('div');
+		div.className = `alert alert-${className}`;
+		div.appendChild(document.createTextNode(message));
+
+		const container = document.querySelector('.container');
+		const form = document.querySelector('#book-form');
+		container.insertBefore(div, form); //insert the div before the form, in the parent container, container
+
+		//make alert delete in 2 seconds by removing anything the alert class
+		setTimeout(() => {
+			document.querySelector('.alert').remove();
+		}, 1500);
+
 	}
 
 	static clearFields() {
@@ -81,14 +98,24 @@ class UI {
 	 const author = document.querySelector('#author').value;
 	 const isbn = document.querySelector('#isbn').value;
 
-	 //make a Book
-	 const book = new Book(title, author, isbn);
+	 // Ensure that none of the fields are blank
+	 if (title === '' || author === '' || isbn === '') {
+		 // className is actually alert-danger in bootstrap, but we're using string interpolation so we only need to pass in the 'danger' or 'success'
+		 UI.showAlert('Please fill in all fields', 'danger')
+	 } else {
+			 //make a Book
+			 const book = new Book(title, author, isbn);
 
-	 //reflect new book in UI
-	 UI.addBookToList(book)
+			 //reflect new book in UI
+			 UI.addBookToList(book)
 
-	 //clear the submit fields
-	 UI.clearFields();
+			 UI.showAlert('Book was added to collection!', 'success');
+
+			 //clear the submit fields
+			 UI.clearFields();
+	 }
+
+
  });
 
   // Event - Remove a  book
@@ -96,5 +123,8 @@ class UI {
 	// Targeting just the delete class would only remove the first such element in the DOM rather than the one we actually clicked on.
 	document.querySelector('#book-list').addEventListener('click', (e) => {
 		//we'll pass the target on the event to a UI method
-		UI.deleteBook(e.target)
+		UI.deleteBook(e.target);
+
+		UI.showAlert('Book was removed from collection!', 'danger');
+
 	})
